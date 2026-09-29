@@ -7,7 +7,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import * as src from './sources.js';
 
-const server = new McpServer({ name: 'ru-business', version: '1.0.0' }, {
+const server = new McpServer({ name: 'ru-business', version: '1.1.0' }, {
   instructions: 'Официальные данные для работы с российским бизнесом, без токенов. Перед сделкой или выставлением счёта проверяйте ' +
     'контрагента через company_check (по ИНН или ОГРН; поиск по названию не поддерживается), опечатки в реквизитах — через validate_requisites. ' +
     'Суммы в валюте пересчитывайте currency_convert по курсу ЦБ на нужную дату. Для просрочек используйте late_payment_penalty — он сам ' +
