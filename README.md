@@ -66,6 +66,14 @@ claude mcp add ru-business -- npx -y github:penmadebykisss/ru-business-mcp
 
 [rf-marketplaces-mcp](https://github.com/penmadebykisss/rf-marketplaces-mcp) — аналитика товаров Wildberries для ИИ-агентов.
 
+## Нужна настройка или доработка?
+
+Подключу этот сервер под ключ: установка, настройка под ваши данные и процессы, доработка под нестандартные поля,
+ежедневные сводки. Пишите в Telegram **[@penmadebykisss](https://t.me/penmadebykisss)** или оставьте заявку на
+[penmadebykisss.github.io](https://penmadebykisss.github.io).
+
+*Need help setting this up or a custom MCP server? Telegram [@penmadebykisss](https://t.me/penmadebykisss).*
+
 ## English
 
 **ru-business-mcp** gives AI assistants official Russian business data with **no account or API token**: company
