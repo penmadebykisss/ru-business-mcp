@@ -7,7 +7,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import * as src from './sources.js';
 
-const server = new McpServer({ name: 'ru-business', version: '1.1.0' }, {
+const server = new McpServer({ name: 'ru-business', version: '1.1.1' }, {
   instructions: 'Официальные данные для работы с российским бизнесом, без токенов. Перед сделкой или выставлением счёта проверяйте ' +
     'контрагента через company_check (по ИНН или ОГРН; поиск по названию не поддерживается), опечатки в реквизитах — через validate_requisites. ' +
     'Суммы в валюте пересчитывайте currency_convert по курсу ЦБ на нужную дату. Для просрочек используйте late_payment_penalty — он сам ' +
@@ -23,8 +23,8 @@ const daysAgo = n => src.iso(new Date(Date.now() - n * 864e5));
 const round = (x, n = 4) => Math.round(x * 10 ** n) / 10 ** n;
 
 const DateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Дата в формате ГГГГ-ММ-ДД');
-const readOnly = { readOnlyHint: true, openWorldHint: true };
-const local = { readOnlyHint: true, openWorldHint: false };
+const readOnly = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true };
+const local = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false };
 
 // ================= Контрагенты =================
 
