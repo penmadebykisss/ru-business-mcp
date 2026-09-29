@@ -7,7 +7,13 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import * as src from './sources.js';
 
-const server = new McpServer({ name: 'ru-business', version: '0.1.0' });
+const server = new McpServer({ name: 'ru-business', version: '0.1.1' }, {
+  instructions: 'Официальные данные для работы с российским бизнесом, без токенов. Перед сделкой или выставлением счёта проверяйте ' +
+    'контрагента через company_check (по ИНН или ОГРН; поиск по названию не поддерживается), опечатки в реквизитах — через validate_requisites. ' +
+    'Суммы в валюте пересчитывайте currency_convert по курсу ЦБ на нужную дату. Для просрочек используйте late_payment_penalty — он сам ' +
+    'учитывает изменения ключевой ставки. Сроки «в рабочих днях» считайте work_days_calc, а не календарными днями. ' +
+    'Official Russian business data: company check by INN/OGRN, CBR rates and key rate, penalties, production calendar, banks by BIK.',
+});
 
 const ok = data => ({ content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] });
 const fail = e => ({ isError: true, content: [{ type: 'text', text: 'Ошибка: ' + (e?.message || String(e)) }] });
@@ -92,7 +98,7 @@ server.registerTool('cbr_rates', {
     'Можно ограничить списком кодов (USD, EUR, CNY…). Если на дату курс не устанавливался (выходной), ЦБ отдаёт последний ' +
     'действующий — поле date показывает, на какую дату он установлен. Только чтение, без токена.',
   inputSchema: {
-    date: DateStr.optional(),
+    date: DateStr.optional().describe('Дата курса ГГГГ-ММ-ДД; по умолчанию сегодня'),
     codes: z.array(z.string().length(3)).optional().describe('Коды валют ISO, например ["USD","EUR","CNY"]'),
   },
   annotations: readOnly,
@@ -133,7 +139,7 @@ server.registerTool('currency_convert', {
     amount: z.number().describe('Сумма'),
     from: z.string().length(3).describe('Исходная валюта (RUB, USD, EUR, CNY…)'),
     to: z.string().length(3).describe('Целевая валюта'),
-    date: DateStr.optional(),
+    date: DateStr.optional().describe('Дата курса ГГГГ-ММ-ДД; по умолчанию сегодня'),
   },
   annotations: readOnly,
 }, safe(async ({ amount, from, to, date }) => {
@@ -245,7 +251,7 @@ server.registerTool('work_days_calc', {
     'ответа на претензию; отрицательное N — назад); between — сколько рабочих дней между двумя датами включительно. ' +
     'Учитывает праздники и переносы; календарь на следующий год появляется после постановления Правительства о переносах. Только чтение, без токена.',
   inputSchema: {
-    operation: z.enum(['add', 'between']),
+    operation: z.enum(['add', 'between']).describe('add — прибавить рабочие дни к дате; between — посчитать рабочие дни между датами'),
     date: DateStr.describe('Начальная дата'),
     days: z.number().int().min(-1000).max(1000).optional().describe('Для add: сколько рабочих дней прибавить (начальный день не считается)'),
     to: DateStr.optional().describe('Для between: конечная дата'),
