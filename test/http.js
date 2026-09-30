@@ -38,12 +38,16 @@ const health = await (await fetch(pub.base + '/health')).json();
 check('/health', health.ok && health.name === 'ru-business-mcp');
 const pre = await fetch(pub.base + '/mcp', { method: 'OPTIONS' });
 check('CORS preflight', pre.status === 204 && pre.headers.get('access-control-allow-origin') === '*');
+const head = await fetch(pub.base + '/mcp', { method: 'HEAD' });
+check('HEAD /mcp → 200 (проверка адреса маркетплейсом)', head.status === 200);
 const get = await fetch(pub.base + '/mcp');
-check('GET /mcp → 405', get.status === 405);
+check('GET /mcp → 200 с описанием', get.status === 200 && (await get.json()).transport === 'streamable-http');
+const sse = await fetch(pub.base + '/mcp', { headers: { Accept: 'text/event-stream' } });
+check('GET /mcp SSE → 405', sse.status === 405);
 pub.proc.kill();
 
 // Режим с ключами и маленьким лимитом
-const priv = await start({ MCP_API_KEYS: 'k1,k2', RATE_PER_MIN: '3' });
+const priv = await start({ MCP_API_KEYS: 'k1,k2', RATE_PER_MIN: '4' });
 const init = { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} };
 const post = (auth) => fetch(priv.base + '/mcp', {
   method: 'POST',
@@ -54,6 +58,8 @@ check('без ключа → 401', (await post()).status === 401);
 check('чужой ключ → 401', (await post('k3')).status === 401);
 const okResp = await post('k2');
 check('верный ключ → 200', okResp.status === 200);
+const viaHeader = await fetch(priv.base + '/mcp', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream', 'X-API-Key': 'k1' }, body: JSON.stringify(init) });
+check('ключ в X-API-Key → 200', viaHeader.status === 200);
 await post('k1'); await post('k1');
 check('лимит запросов → 429', (await post('k1')).status === 429);
 priv.proc.kill();

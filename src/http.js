@@ -19,8 +19,8 @@ const KEYS = (process.env.MCP_API_KEYS || '').split(',').map(s => s.trim()).filt
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID',
+  'Access-Control-Allow-Methods': 'POST, GET, HEAD, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key, Accept, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID',
   'Access-Control-Expose-Headers': 'Mcp-Session-Id, Mcp-Protocol-Version',
 };
 
@@ -62,9 +62,14 @@ export function handler() {
     if (req.method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
     if (url.pathname === '/health') return send(res, 200, { ok: true, name: 'ru-business-mcp', version: VERSION });
     if (url.pathname !== '/mcp') return send(res, 404, { error: 'Not found. MCP endpoint: /mcp' });
+    // Проверки доступности адреса (HEAD, браузер) получают 200; поток SSE по GET сервер без сессий не держит
+    if (req.method === 'HEAD') { res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', ...CORS }); return res.end(); }
+    if (req.method === 'GET' && !String(req.headers.accept || '').includes('text/event-stream'))
+      return send(res, 200, { name: 'ru-business-mcp', version: VERSION, transport: 'streamable-http', usage: 'POST /mcp (JSON-RPC)' });
     if (req.method !== 'POST') return rpcError(res, 405, 'Используйте POST /mcp (Streamable HTTP, без сессий)', { Allow: 'POST, OPTIONS' });
 
-    const key = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
+    // Ключ принимается и как Authorization: Bearer, и как X-API-Key — разные клиенты передают его по-разному
+    const key = ((req.headers.authorization || '').replace(/^Bearer\s+/i, '') || req.headers['x-api-key'] || '').trim();
     if (!keyOk(key)) return rpcError(res, 401, 'Нужен ключ доступа: заголовок Authorization: Bearer <ключ>');
     if (!rateOk(clientIp(req))) return rpcError(res, 429, `Не больше ${MAX_PER_MIN} запросов в минуту`, { 'Retry-After': '60' });
 
