@@ -1,11 +1,11 @@
 {
   "name": "ru-business-mcp",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "MCP-сервер бизнес-данных РФ без токенов: проверка контрагентов по ИНН (ЕГРЮЛ ФНС), курсы и ключевая ставка ЦБ, пени, производственный календарь, банки по БИК",
   "type": "module",
   "bin": { "ru-business-mcp": "src/index.js" },
   "files": ["src"],
-  "scripts": { "start": "node src/index.js", "test": "node test/smoke.js" },
+  "scripts": { "start": "node src/index.js", "test": "node test/smoke.js && node test/http.js" },
   "keywords": ["mcp", "model-context-protocol", "russia", "inn", "egrul", "fns", "cbr", "exchange-rates", "production-calendar", "ai-agent"],
   "license": "MIT",
   "repository": { "type": "git", "url": "git+https://github.com/penmadebykisss/ru-business-mcp.git" },

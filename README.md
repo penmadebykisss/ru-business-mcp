@@ -55,6 +55,25 @@ claude mcp add ru-business -- npx -y github:penmadebykisss/ru-business-mcp
 
 Любой клиент с поддержкой MCP по stdio: команда `npx`, аргументы `-y github:penmadebykisss/ru-business-mcp`.
 
+### Удалённое подключение по ссылке — без установки
+
+Сервер работает и в облаке по Streamable HTTP. Подойдёт для клиентов, которые подключают MCP по адресу:
+Битрикс24 MCP Hub (агент Марта / BitrixGPT), Claude и ChatGPT (раздел «Коннекторы»), n8n, Cursor.
+
+```
+https://biz.144-31-16-235.sslip.io/mcp
+```
+
+Ключ не нужен — данные открытые; действует лимит 60 запросов в минуту. Свой экземпляр:
+
+```bash
+MCP_HTTP_PORT=8788 npx -y github:penmadebykisss/ru-business-mcp --http
+```
+
+Переменные: `MCP_HTTP_PORT` (порт), `MCP_HTTP_HOST` (по умолчанию `127.0.0.1` — наружу через HTTPS-прокси),
+`RATE_PER_MIN` (лимит с одного IP), `MCP_API_KEYS` (ключи через запятую — тогда нужен заголовок
+`Authorization: Bearer <ключ>`). Проверка: `GET /health`.
+
 ## Ограничения
 
 - Поиск компаний по названию ФНС для внешних запросов не отдаёт — нужен ИНН или ОГРН.
