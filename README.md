@@ -103,6 +103,8 @@ late-payment interest (Civil Code art. 395), the Russian production calendar and
 npx -y github:penmadebykisss/ru-business-mcp
 ```
 
+**Ready-made agent skill:** [Russian Company Check, CBR Rates & Business Calendar](https://www.agensi.io/skills/russian-company-check-cbr-rates-business-calendar) on Agensi — free SKILL.md with usage rules and configs for Claude Code, Claude Desktop, Cursor, VS Code, Windsurf and Codex.
+
 ## Лицензия
 
 MIT
